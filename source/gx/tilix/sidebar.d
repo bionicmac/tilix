@@ -4,6 +4,7 @@
  */
 module gx.tilix.sidebar;
 
+import std.algorithm;
 import std.conv;
 import std.format;
 import std.experimental.logger;
@@ -12,10 +13,13 @@ import gdk.Atom;
 import gdk.DragContext;
 import gdk.Event;
 import gdk.Keysyms;
+import gdk.Pixbuf;
 import gdk.Screen;
 import gdk.Window: GdkWindow = Window;
 
 import gio.Settings : GSettings = Settings;
+
+import gobject.Signals;
 
 import gtk.Adjustment;
 import gtk.AspectFrame;
@@ -200,7 +204,7 @@ private:
                 break;
             }
         }
-        return false;        
+        return false;
     }
 
     bool onKeyRelease(Event event, Widget w) {
@@ -335,19 +339,49 @@ public:
         add(sw);
     }
 
+    /**
+     * Populate the ListBox with a list of rows that correspond to the sessions. The code here
+     * tries to be smart and re-use existing rows when available and just update them as necessary.
+     * If there are more rows then sessions they get removed and destroyed, if there are less rows then
+     * sessions then new ones get added.
+     */
     void populateSessions(Session[] sessions, string currentSessionUUID, SessionNotification[string] notifications, int width, int height) {
         trace("Populating sidebar sessions");
         blockSelectedHandler = true;
         scope (exit) {
             blockSelectedHandler = false;
         }
-        lbSessions.removeAll();
-        foreach (i, session; sessions) {
-            SideBarRow row = new SideBarRow(this, session, notifications, width, height);
-            row.sessionIndex = i + 1;
-            lbSessions.add(row);
-            if (session.uuid == currentSessionUUID) {
-                lbSessions.selectRow(row);
+
+        SideBarRow[] rows = gx.gtk.util.getChildren!SideBarRow(lbSessions, false);
+
+        ulong maxSessions = min(rows.length, sessions.length);
+        for (size_t i; i < maxSessions; i++) {
+            rows[i].updateUI(sessions[i], notifications, width, height);
+            if (sessions[i].uuid == currentSessionUUID) {
+                lbSessions.selectRow(rows[i]);
+            }
+        }
+
+        if (rows.length > sessions.length) {
+            for (size_t i = sessions.length; i < rows.length; i++ ) {
+                SideBarRow row = rows[i];
+                lbSessions.remove(row);
+
+                // Releases sidebar reference so it can be GC'ed
+                row.release();
+
+                // Doesn't actually need the destroy but doesn't hurt
+                // and provides extra layer of safety
+                row.destroy();
+            }
+        } else {
+            for (size_t i = rows.length; i < sessions.length; i++) {
+                SideBarRow row = new SideBarRow(this, sessions[i], notifications, width, height);
+                row.sessionIndex = i + 1;
+                lbSessions.add(row);
+                if (sessions[i].uuid == currentSessionUUID) {
+                    lbSessions.selectRow(row);
+                }
             }
         }
         lbSessions.showAll();
@@ -403,7 +437,7 @@ public:
     /**
      * Event that requests that two sessions be re-ordered, returns
      * true if the re-order was successful, false if not.
-     * 
+     *
      * Params:
      *   sourceUUID = The session that needs to be moved
      *   targetUUID = The target session to move in front of
@@ -428,6 +462,16 @@ private:
     Label lblIndex;
     SideBar sidebar;
     Window dragImage;
+    EventBox eb;
+    Button btnClose;
+    Image img;
+    Label lblName;
+    Label lblNCount;
+    EventBox evNotification;
+    AspectFrame afNotification;
+
+    gulong[] ebEventHandlerId;
+    gulong closeButtonHandler;
 
     bool isRootWindow = false;
 
@@ -444,32 +488,28 @@ private:
     void createUI(Session session, SessionNotification[string] notifications, int width, int height) {
         Overlay overlay = new Overlay();
         setAllMargins(overlay, 2);
-        Frame imgframe = new Frame(new Image(getWidgetImage(session.drawable, 0.20, width, height)), null);
+        Pixbuf pb = getWidgetImage(session.drawable, 0.20, width, height);
+        img = new Image(pb);
+        scope(exit) {
+            pb.destroy();
+        }
+        Frame imgframe = new Frame(img, null);
         imgframe.setShadowType(ShadowType.IN);
         overlay.add(imgframe);
         //Create Notification and Session Numbers
         Grid grid = new Grid();
         setAllMargins(grid, 4);
 
-        if (session.uuid in notifications) {
-            SessionNotification sn = notifications[session.uuid];
-            Label lblNCount = new Label(format("%d", sn.messages.length));
-            lblNCount.setUseMarkup(true);
-            lblNCount.setWidthChars(2);
-            string tooltip;
-            foreach (j, message; sn.messages) {
-                if (j > 0) {
-                    tooltip ~= "\n\n";
-                }
-                tooltip ~= message._body;
-            }
-            setAllMargins(lblNCount, 4);
-            EventBox ev = new EventBox();
-            ev.add(lblNCount);
-            AspectFrame af = wrapWidget(ev, "tilix-notification-count");
-            ev.setTooltipText(tooltip);
-            grid.attach(af, 0, 2, 1, 1);
-        }
+        // Label with notification count
+        lblNCount = new Label("");
+        lblNCount.setUseMarkup(true);
+        lblNCount.setWidthChars(2);
+        setAllMargins(lblNCount, 4);
+        evNotification = new EventBox();
+        evNotification.add(lblNCount);
+        afNotification = wrapWidget(evNotification, "tilix-notification-count");
+        afNotification.setNoShowAll(true);
+        grid.attach(afNotification, 0, 2, 1, 1);
 
         Label leftSpacer = new Label("");
         leftSpacer.setWidthChars(2);
@@ -480,7 +520,7 @@ private:
         midSpacer.setVexpand(true);
         grid.attach(midSpacer, 1, 1, 1, 1);
 
-        Label lblName = new Label(session.displayName);
+        lblName = new Label("");
         lblName.setMarginLeft(2);
         lblName.setMarginRight(2);
         lblName.setEllipsize(PangoEllipsizeMode.END);
@@ -501,7 +541,7 @@ private:
         grid.attach(wrapWidget(lblIndex, "tilix-session-index"), 2, 2, 1, 1);
 
         //Add Close Button
-        Button btnClose = new Button("window-close-symbolic", IconSize.MENU);
+        btnClose = new Button("window-close-symbolic", IconSize.MENU);
         btnClose.getStyleContext().addClass("tilix-sidebar-close-button");
         btnClose.setTooltipText(_("Close"));
         btnClose.setRelief(ReliefStyle.NONE);
@@ -511,29 +551,60 @@ private:
         overlay.addOverlay(grid);
 
         //Setup drag and drop
-        EventBox eb = new EventBox();
+        eb = new EventBox();
         eb.add(overlay);
         // Drag and Drop
         TargetEntry[] targets = [new TargetEntry(SESSION_DND, TargetFlags.SAME_APP, 0)];
         eb.dragSourceSet(ModifierType.BUTTON1_MASK, targets, DragAction.MOVE);
         eb.dragDestSet(DestDefaults.ALL, targets, DragAction.MOVE);
-        eb.addOnDragDataGet(&onRowDragDataGet);
-        eb.addOnDragDataReceived(&onRowDragDataReceived);
-        eb.addOnDragBegin(&onRowDragBegin);
-        eb.addOnDragEnd(&onRowDragEnd);
-        eb.addOnDragFailed(&onRowDragFailed);
+        ebEventHandlerId ~= eb.addOnDragDataGet(&onRowDragDataGet);
+        ebEventHandlerId ~= eb.addOnDragDataReceived(&onRowDragDataReceived);
+        ebEventHandlerId ~= eb.addOnDragBegin(&onRowDragBegin);
+        ebEventHandlerId ~= eb.addOnDragEnd(&onRowDragEnd);
+        ebEventHandlerId ~= eb.addOnDragFailed(&onRowDragFailed);
 
         add(eb);
 
-        btnClose.addOnClicked(delegate(Button) {
-            sidebar.removeSession(_sessionUUID);
+        closeButtonHandler = btnClose.addOnClicked(delegate(Button) {
+            if (sidebar !is null) sidebar.removeSession(_sessionUUID);
         });
+    }
+
+    void updateUI(Session session, SessionNotification[string] notifications, int width, int height) {
+        Pixbuf pb = getWidgetImage(session.drawable, 0.20, width, height);
+        scope(exit) {
+            pb.destroy();
+        }
+        img.setFromPixbuf(pb);
+        lblName.setText(session.displayName);
+        if (session.uuid in notifications) {
+            SessionNotification sn = notifications[session.uuid];
+            lblNCount.setText(format("%d", sn.messages.length));
+            string tooltip;
+            foreach (j, message; sn.messages) {
+                if (j > 0) {
+                    tooltip ~= "\n\n";
+                }
+                tooltip ~= message._body;
+            }
+            evNotification.setTooltipText(tooltip);
+            afNotification.show();
+        } else {
+            afNotification.hide();
+        }
     }
 
     void onRowDragBegin(DragContext dc, Widget widget) {
         isRootWindow = false;
         Image image = new Image(getWidgetImage(this, 1.00));
         image.show();
+
+        if (dragImage !is null) {
+            trace("*** Destroying the previous dragImage");
+            dragImage.destroy();
+            dragImage = null;
+        }
+
         dragImage = new Window(GtkWindowType.POPUP);
         dragImage.add(image);
         DragAndDrop.dragSetIconWidget(dc, dragImage, 0, 0);
@@ -543,7 +614,7 @@ private:
         if (isRootWindow && sidebar.notifyIsActionAllowed(ActionType.DETACH_SESSION)) {
             detachSessionOnDrop(dc);
         }
-        
+
         dragImage.destroy();
         dragImage = null;
 
@@ -566,7 +637,7 @@ private:
         }
         return false;
     }
-    
+
     bool detachSessionOnDrop(DragContext dc) {
         trace("Detaching session");
         Screen screen;
@@ -604,6 +675,33 @@ public:
         this.sidebar = sidebar;
         _sessionUUID = session.uuid;
         createUI(session, notifications, width, height);
+        updateUI(session, notifications, width, height);
+    }
+
+    debug(Destructors) {
+        ~this() {
+            import std.stdio: writeln;
+            writeln("******** SideBarRow Destructor");
+        }
+    }
+
+    /**
+     * Cleans up references so row can be GC'ed. There was an issue with
+     * with the row holding the sidebar reference preventing it from being
+     * garbage collected. We disconnect the event handlers that use that reference
+     * and then set the reference to null.
+     */
+    public void release() {
+        foreach(id; ebEventHandlerId) {
+            Signals.handlerDisconnect(eb, id);
+        }
+        Signals.handlerDisconnect(btnClose, closeButtonHandler);
+        this.sidebar = null;
+    }
+
+    public void update(Session session, SessionNotification[string] notifications, int width, int height) {
+        _sessionUUID = session.uuid;
+        updateUI(session, notifications, width, height);
     }
 
     @property string sessionUUID() {

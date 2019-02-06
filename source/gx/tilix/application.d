@@ -159,14 +159,11 @@ private:
     }
 
     /**
-     * Installs the application menu. This is the menu that drops down in gnome-shell when you click the application
-     * name next to Activities.
+     * Registers the primary menu actions. 
      *
 	 * This code adapted from grestful (https://github.com/Gert-dev/grestful)
      */
-    void installAppMenu() {
-        Menu appMenu = new Menu();
-
+    void setupPrimaryMenuActions() {
         /**
          * Action used to support notifications, when a notification it has this action associated with it
          * along with the sessionUUID
@@ -220,25 +217,6 @@ private:
         registerAction(this, ACTION_PREFIX_APP, ACTION_ABOUT, null, delegate(GVariant, SimpleAction) { onShowAboutDialog(); });
 
         registerAction(this, ACTION_PREFIX_APP, ACTION_QUIT, null, delegate(GVariant, SimpleAction) { quitTilix(); });
-
-        Menu newSection = new Menu();
-        newSection.append(_("New Session"), getActionDetailedName(ACTION_PREFIX_APP, ACTION_NEW_SESSION));
-        newSection.append(_("New Window"), getActionDetailedName(ACTION_PREFIX_APP, ACTION_NEW_WINDOW));
-        appMenu.appendSection(null, newSection);
-
-        Menu prefSection = new Menu();
-        prefSection.append(_("Preferences"), getActionDetailedName(ACTION_PREFIX_APP, ACTION_PREFERENCES));
-        if (Version.checkVersion(3, 19, 0).length == 0) {
-            prefSection.append(_("Shortcuts"), getActionDetailedName(ACTION_PREFIX_APP, ACTION_SHORTCUTS));
-        }
-        appMenu.appendSection(null, prefSection);
-
-        Menu otherSection = new Menu();
-        otherSection.append(_("About"), getActionDetailedName(ACTION_PREFIX_APP, ACTION_ABOUT));
-        otherSection.append(_("Quit"), getActionDetailedName(ACTION_PREFIX_APP, ACTION_QUIT));
-        appMenu.appendSection(null, otherSection);
-
-        this.setAppMenu(appMenu);
     }
 
     void onCreateNewSession() {
@@ -525,7 +503,7 @@ private:
         initBookmarkManager();
         bmMgr.load();
         applyPreferences();
-        installAppMenu();
+        setupPrimaryMenuActions();
         loadProfileShortcuts();
     }
 
@@ -695,7 +673,7 @@ private:
         addMainOption(CMD_QUAKE, 'q', GOptionFlags.NONE, GOptionArg.NONE, _("Opens a window in quake mode or toggles existing quake mode window visibility"), null);
         addMainOption(CMD_VERSION, 'v', GOptionFlags.NONE, GOptionArg.NONE, _("Show the Tilix and dependant component versions"), null);
         addMainOption(CMD_PREFERENCES, '\0', GOptionFlags.NONE, GOptionArg.NONE, _("Show the Tilix preferences dialog directly"), null);
-        addMainOption(CMD_GROUP, 'g', GOptionFlags.NONE, GOptionArg.STRING, _("Group tilix instances into different processes (Experimental, not recommended"), null);
+        addMainOption(CMD_GROUP, 'g', GOptionFlags.NONE, GOptionArg.STRING, _("Group tilix instances into different processes (Experimental, not recommended)"), null);
 
         //Hidden options used to communicate with primary instance
         addMainOption(CMD_TERMINAL_UUID, '\0', GOptionFlags.HIDDEN, GOptionArg.STRING, _("Hidden argument to pass terminal UUID"), _("TERMINAL_UUID"));

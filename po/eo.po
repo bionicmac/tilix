@@ -4,20 +4,16 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: terminix\n"
+"Project-Id-Version: tilix\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-01-06 18:49-0500\n"
-"PO-Revision-Date: 2016-07-30 19:47+0000\n"
-"Last-Translator: Moo <hazap@hotmail.com>\n"
-"Language-Team: Lithuanian <https://hosted.weblate.org/projects/terminix/"
-"translations/lt/>\n"
-"Language: lt\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n"
-"%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 2.8-dev\n"
 
 #: source/app.d:139
 #, c-format
@@ -393,7 +389,7 @@ msgstr ""
 #: source/gx/tilix/prefeditor/profileeditor.d:289
 #: source/gx/tilix/prefeditor/profileeditor.d:328
 msgid "Reset"
-msgstr "Atstatyti"
+msgstr ""
 
 #: source/gx/tilix/terminal/terminal.d:853
 msgid "Reset and Clear"
@@ -429,9 +425,8 @@ msgid "Add Down"
 msgstr ""
 
 #: source/gx/tilix/terminal/terminal.d:988
-#, fuzzy
 msgid "Terminal Activity"
-msgstr "Terminalo dydis"
+msgstr ""
 
 #: source/gx/tilix/terminal/terminal.d:1324
 msgid "Not Enabled"
@@ -705,7 +700,7 @@ msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:101
 msgid "Compatibility"
-msgstr "Suderinamumas"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:105
 #: source/gx/tilix/prefeditor/profileeditor.d:577
@@ -716,7 +711,7 @@ msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:217
 msgid "Profile name"
-msgstr "Profilio pavadinimas"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:241
 msgid "Terminal title"
@@ -728,7 +723,7 @@ msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:262
 msgid "Terminal size"
-msgstr "Terminalo dydis"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:272
 msgid "columns"
@@ -739,9 +734,8 @@ msgid "rows"
 msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:301
-#, fuzzy
 msgid "Cell spacing"
-msgstr "Terminalo dydis"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:311
 msgid "width"
@@ -756,9 +750,8 @@ msgid "Margin"
 msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:358
-#, fuzzy
 msgid "Text blink mode"
-msgstr "Mirksėjimo veiksena"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:361
 msgid "Never"
@@ -793,7 +786,7 @@ msgstr ""
 #: source/gx/tilix/prefeditor/profileeditor.d:419
 #: source/gx/tilix/prefeditor/profileeditor.d:661
 msgid "Cursor"
-msgstr "Žymeklis"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:422
 msgid "Block"
@@ -801,16 +794,15 @@ msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:422
 msgid "IBeam"
-msgstr "Dvitėjinė sija"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:422
 msgid "Underline"
-msgstr "Pabraukimas"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:430
-#, fuzzy
 msgid "Cursor blink mode"
-msgstr "Mirksėjimo veiksena"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:433
 msgid "System"
@@ -849,11 +841,11 @@ msgstr ""
 #: source/gx/tilix/prefeditor/profileeditor.d:467
 #, c-format
 msgid "ID: %s"
-msgstr "ID: %s"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:515
 msgid "Color scheme"
-msgstr "Spalvų rinkinys"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:525
 #: source/gx/tilix/prefeditor/profileeditor.d:992
@@ -866,12 +858,12 @@ msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:550
 msgid "Color palette"
-msgstr "Spalvų paletė"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:558
 #: source/gx/tilix/prefeditor/prefdialog.d:1366
 msgid "Options"
-msgstr "Parametrai"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:572
 msgid "Use theme colors for foreground/background"
@@ -896,7 +888,7 @@ msgstr ""
 #: source/gx/tilix/prefeditor/profileeditor.d:657
 #: source/gx/tilix/prefeditor/profileeditor.d:761
 msgid "Background"
-msgstr "Fonas"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:668
 msgid "Select Cursor Foreground Color"
@@ -986,9 +978,8 @@ msgid "Select %s Light Color"
 msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:949
-#, fuzzy
 msgid "Export Color Scheme"
-msgstr "Spalvų rinkinys"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/profileeditor.d:1026
 msgid "Show scrollbar"
@@ -1232,20 +1223,18 @@ msgid "Profile"
 msgstr ""
 
 #: source/gx/tilix/prefeditor/prefdialog.d:189
-#, fuzzy
 msgid "Add profile"
-msgstr "Naujas profilis"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/prefdialog.d:194
-#, fuzzy
 msgid "Delete profile"
-msgstr "Naujas profilis"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/prefdialog.d:312
 #: source/gx/tilix/prefeditor/prefdialog.d:320
-#, fuzzy, c-format
+#, c-format
 msgid "Profile: %s"
-msgstr "Profilio pavadinimas"
+msgstr ""
 
 #: source/gx/tilix/prefeditor/prefdialog.d:366
 #, c-format
@@ -1815,11 +1804,11 @@ msgstr ""
 #: source/gx/tilix/colorschemes.d:189
 #, c-format
 msgid "File %s is not a color scheme compliant JSON file"
-msgstr "Failas %s nėra su JSON failu suderinamas spalvų rinkinys"
+msgstr ""
 
 #: source/gx/tilix/colorschemes.d:252
 msgid "Color scheme palette requires 16 colors"
-msgstr "Spalvų rinkinio paletė reikalauja 16 spalvų"
+msgstr ""
 
 #: source/gx/tilix/session.d:568
 msgid "Could not locate dropped terminal"
@@ -1893,14 +1882,12 @@ msgid "Status.Input-Sync"
 msgstr ""
 
 #: source/gx/tilix/constants.d:178
-#, fuzzy
 msgid "Terminal count"
-msgstr "Terminalo dydis"
+msgstr ""
 
 #: source/gx/tilix/constants.d:179
-#, fuzzy
 msgid "Terminal number"
-msgstr "Terminalo dydis"
+msgstr ""
 
 #: source/gx/tilix/constants.d:180
 msgid "Active terminal title"
@@ -2496,10 +2483,9 @@ msgid "Switch to terminal 10"
 msgstr ""
 
 #: data/resources/ui/shortcuts.ui:368
-#, fuzzy
 msgctxt "shortcut window"
 msgid "Terminal"
-msgstr "Terminalo dydis"
+msgstr ""
 
 #: data/resources/ui/shortcuts.ui:373 data/resources/ui/shortcuts.ui:377
 msgctxt "shortcut window"
@@ -2707,10 +2693,9 @@ msgid "Open in Tilix"
 msgstr ""
 
 #: data/resources/ui/shortcuts.ui:636 data/resources/ui/shortcuts.ui:641
-#, fuzzy
 msgctxt "shortcut window"
 msgid "Profile"
-msgstr "Profilio pavadinimas"
+msgstr ""
 
 #: data/pkg/desktop/com.gexperts.Tilix.desktop.in:5
 msgid "A tiling terminal for Gnome"

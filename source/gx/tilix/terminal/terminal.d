@@ -3080,7 +3080,7 @@ private:
         MainContext ctx = MainContext.getThreadDefault();
         if (ctx is null) {
             // https://github.com/gtkd-developers/GtkD/issues/247
-            ctx = MainContext.defaulx();
+            ctx = MainContext.default_();
         }
 
         trace("captureHostToolboxCommand is waiting for status to be filled...");
@@ -3236,6 +3236,11 @@ private:
     void onTitleDragBegin(DragContext dc, Widget widget) {
         trace("Title Drag begin");
         isRootWindow = false;
+        if (dragImage !is null) {
+            trace("*** Destroying the previous dragImage");
+            dragImage.destroy();
+            dragImage = null;
+        }
         static if (USE_PIXBUF_DND) {
             dragImage = getWidgetImage(this, 0.20);
             DragAndDrop.dragSetIconPixbuf(dc, dragImage, 0, 0);
@@ -3255,9 +3260,10 @@ private:
         }
         trace("*** Destroying dragImage");
         isRootWindow = false;
-        dragImage.destroy();
-        dragImage = null;
-
+        if (dragImage !is null) {
+            dragImage.destroy();
+            dragImage = null;
+        }
         // Under Wayland needed to fix cursor sticking due to
         // GtkD holding reference to GTK DragReference
         dc.destroy();
@@ -3268,7 +3274,13 @@ private:
      */
     bool onTitleDragFailed(DragContext dc, GtkDragResult dr, Widget widget) {
         trace("Drag Failed with ", dr);
-        isRootWindow = false;
+        scope(exit) {
+            isRootWindow = false;
+            if (dragImage !is null) {
+                dragImage.destroy();
+                dragImage = null;
+            }
+        }
         if (dr == GtkDragResult.NO_TARGET) {
             //Only allow detach if whole heirarchy agrees (application, window, session)
             if (notifyIsActionAllowed(ActionType.DETACH_TERMINAL)) {
@@ -4318,6 +4330,7 @@ public:
         Label lblCmd = new Label(SimpleXML.markupEscapeText(cmd, cmd.length));
         lblCmd.setUseMarkup(true);
         lblCmd.setHalign(Align.START);
+        lblCmd.setEllipsize(PangoEllipsizeMode.END);
 
         if (count(cmd,"\n") > 6) {
             ScrolledWindow sw = new ScrolledWindow();

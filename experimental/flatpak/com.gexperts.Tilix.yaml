@@ -1,22 +1,21 @@
 id: com.gexperts.Tilix
 branch: master
 runtime: org.gnome.Platform
-runtime-version: 3.28
+runtime-version: '3.30'
 sdk: org.gnome.Sdk
 command: tilix
-tags: ['Terminal', 'Tile']
 finish-args:
-  - '--share=ipc'
-  - '--socket=x11'
-  - '--socket=wayland'
-  - '--filesystem=xdg-run/dconf'
-  - '--filesystem=~/.config/dconf:ro'
-  - '--talk-name=ca.desrt.dconf'
-  - '--env=DCONF_USER_CONFIG_DIR=.config/dconf'
-  - '--own-name=com.gexperts.Tilix'
-  - '--talk-name=org.freedesktop.Flatpak'
-  - '--talk-name=org.freedesktop.secrets'
-  - '--device=all'
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --filesystem=xdg-run/dconf
+  - --filesystem=~/.config/dconf:ro
+  - --talk-name=ca.desrt.dconf
+  - --env=DCONF_USER_CONFIG_DIR=.config/dconf
+  - --own-name=com.gexperts.Tilix
+  - --talk-name=org.freedesktop.Flatpak
+  - --talk-name=org.freedesktop.secrets
+  - --device=all
 cleanup:
   # - '/bin/ldc*'
   # - '/bin/ldmd2'
@@ -38,6 +37,20 @@ build-options:
   env:
     PERLLIB: '/app/lib'
 modules:
+  - name: termcap
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://ftp.gnu.org/gnu/termcap/termcap-1.3.1.tar.gz
+        sha256: 91a0e22e5387ca4467b5bcb18edf1c51b930262fd466d5fda396dd9d26719100 
+  - name: ncurses
+    buildsystem: autotools
+    config-opts:
+      - '--with-shared'
+    sources:
+      - type: archive
+        url: https://ftp.gnu.org/gnu/ncurses/ncurses-6.1.tar.gz
+        sha256: aa057eeeb4a14d470101eff4597d5833dcef5965331be3528c08d99cebaa0d17
   - name: libconfig
     buildsystem: autotools
     sources:
@@ -48,8 +61,8 @@ modules:
     buildsystem: autotools
     sources:
       - type: archive
-        url: https://thrysoee.dk/editline/libedit-20180525-3.1.tar.gz
-        sha256: c41bea8fd140fb57ba67a98ec1d8ae0b8ffa82f4aba9c35a87e5a9499e653116
+        url: https://thrysoee.dk/editline/libedit-20181209-3.1.tar.gz
+        sha256: 2811d70c0b000f2ca91b7cb1a37203134441743c4fcc9c37b0b687f328611064
   - name: ldc-0.17
     buildsystem: cmake-ninja
     config-opts:
@@ -104,8 +117,8 @@ modules:
       - 'make -j2 prefix=/app install-gtkd install-vte'
     sources:
       - type: archive
-        url: https://gtkd.org/Downloads/sources/GtkD-3.8.3.zip
-        sha256: 2471820137702d6e1cfc9d19a39de5af34524246988c74deffabbbb63e0b6369
+        url: https://gtkd.org/Downloads/sources/GtkD-3.8.4.zip
+        sha256: b9686f30c48df58909c9845dcf7fb6a40745e47b6db412f8eb9ad2c655fd6136
         strip-components: 0
   - name: po4a
     buildsystem: simple
@@ -139,11 +152,7 @@ modules:
       - type: file
         path: tilix-flatpak-toolbox.c
   - name: tilix
-    buildsystem: autotools
-    config-opts:
-      - 'DCFLAGS=-g'
-    post-install:
-      - 'glib-compile-schemas /app/share/glib-2.0/schemas'
+    buildsystem: meson
     sources:
-      - type: dir
-        path: ../..
+      - type: git
+        url: https://github.com/gnunn1/tilix.git
